@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     run = false;
+    green = QColor("#ccffcc");
+    red = QColor("#ffcccc");
     contextMenu = new QMenu();
     contextMenu->addActions(QList<QAction *>() << ui->actionInitial << ui->actionFinal);
 }
@@ -116,11 +118,11 @@ void MainWindow::restoreRulesFromTable()
         Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
 
         if (ui->rulesTable->item(row, 0) != nullptr &&
-            ui->rulesTable->item(row, 0)->backgroundColor() == Qt::darkGreen)
+            ui->rulesTable->item(row, 0)->backgroundColor() == green)
             rule.setInitial(true);
 
         if (ui->rulesTable->item(row, 0) != nullptr &&
-            ui->rulesTable->item(row, 0)->backgroundColor() == Qt::darkRed)
+            ui->rulesTable->item(row, 0)->backgroundColor() == red)
             rule.setFinal(true);
 
         if (!rule.isEmpty())
@@ -220,11 +222,11 @@ void MainWindow::setRowColor(const QColor & color, int currentRow)
 void MainWindow::on_actionInitial_triggered()
 {
     int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(contextMenu->pos()).y());
-    setRowColor(Qt::darkGreen, currentRow);
+    setRowColor(green, currentRow);
 }
 
 void MainWindow::on_actionFinal_triggered()
 {
     int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(contextMenu->pos()).y());
-    setRowColor(Qt::darkRed, currentRow);
+    setRowColor(red, currentRow);
 }

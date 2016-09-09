@@ -41,6 +41,9 @@ private:
     QVector<Rule> rules;
     QMenu *contextMenu;
     bool run;
+
+    QColor green, red;
+
 };
 
 #endif // MAINWINDOW_H
