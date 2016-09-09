@@ -23,16 +23,24 @@ public:
 private slots:
     void on_actionHelp_triggered();
     void on_actionSave_triggered();
-    void on_actionLoad_triggered();
+    void on_actionLoad_triggered();  
+    void on_rulesTable_itemChanged(QTableWidgetItem *item);
+    void on_tapeTable_itemChanged(QTableWidgetItem *item);
+    void on_actionStart_Pause_triggered();
+    void on_rulesTable_customContextMenuRequested(const QPoint &pos);
+    void on_actionInitial_triggered();
 
     void loadRulesToTable();
     void restoreRulesFromTable();
-    void on_rulesTable_itemChanged(QTableWidgetItem *item);
-    void on_tapeTable_itemChanged(QTableWidgetItem *item);
+    void setRowColor(const QColor & color, int currentRow);
+
+    void on_actionFinal_triggered();
 
 private:
     Ui::MainWindow *ui;
     QVector<Rule> rules;
+    QMenu *contextMenu;
+    bool run;
 };
 
 #endif // MAINWINDOW_H

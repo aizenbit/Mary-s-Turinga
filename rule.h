@@ -17,16 +17,21 @@ public:
     Rule(int currentState, QChar currentSymbol,
          int nextState, QChar nextSymbol, QChar direction,
          QObject *parent = 0);
+    void operator =(const Rule & other);
 
-    QString toString() const;
+    void setInitial(bool initial) {this->initial = initial;}
+    void setFinal(bool final) {this->final = final;}
+    bool isInitial() {return initial;}
+    bool isFinal() {return final;}
+    bool isEmpty() {return empty;}
     int getCurrentState() const {return currentState;}
     int getNextState() const {return nextState;}
     QChar getCurrentSymbol() const {return currentSymbol;}
     QChar getNextSymbol() const {return nextSymbol;}
     QChar getDirection() const {return direction;}
     QSet<QChar> getDirections() const {return directions;}
-    bool isEmpty() {return empty;}
-    void operator =(const Rule & other);
+
+    QString toString() const;
     static Rule fromString(const QString &in);
 signals:
 
@@ -36,7 +41,7 @@ private:
     int currentState, nextState;
     QChar currentSymbol, nextSymbol, direction;
     QSet<QChar> directions;
-    bool empty;
+    bool empty, initial, final;
 };
 
 #endif // RULE_H
