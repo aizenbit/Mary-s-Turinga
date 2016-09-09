@@ -21,9 +21,9 @@ public:
 
     void setInitial(bool initial) {this->initial = initial;}
     void setFinal(bool final) {this->final = final;}
-    bool isInitial() {return initial;}
-    bool isFinal() {return final;}
-    bool isEmpty() {return empty;}
+    bool isInitial() const {return initial;}
+    bool isFinal() const {return final;}
+    bool isEmpty() const {return empty;}
     int getCurrentState() const {return currentState;}
     int getNextState() const {return nextState;}
     QChar getCurrentSymbol() const {return currentSymbol;}

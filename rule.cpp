@@ -7,7 +7,9 @@ Rule::Rule(QObject *parent) : QObject(parent)
     this->currentSymbol = QChar();
     this->nextState = -1;
     this->nextSymbol = QChar();
-    this->direction = 'N';
+    this->direction = QChar();
+    initial = false;
+    final = false;
     empty = true;
 }
 
@@ -24,6 +26,8 @@ void Rule::operator =(const Rule & other)
     nextSymbol = other.nextSymbol;
     direction = other.direction;
     empty = other.empty;
+    initial = other.initial;
+    final = other.final;
 }
 
 Rule::Rule(int currentState, QChar currentSymbol,
@@ -41,27 +45,46 @@ Rule::Rule(int currentState, QChar currentSymbol,
 
     if (directions.contains(direction))
         this->direction = direction;
-    else
-        this->direction = 'N';
 
-    empty = false;
+    if (currentState > 0 || nextState > 0 ||
+        !currentSymbol.isNull() || !nextSymbol.isNull() || !direction.isNull())
+        empty = false;
 }
 
 QString Rule::toString() const
 {
-    QString string = QString("q%1%2->q%3%4%5").arg(currentState).arg(currentSymbol)
-            .arg(nextState).arg(nextSymbol).arg(direction);
+
+    QString string = QString("q%1%2->q%3%4%5")
+            .arg(currentState)
+            .arg(currentSymbol.isNull() ? ' ' : currentSymbol)
+            .arg(nextState)
+            .arg(nextSymbol.isNull() ? ' ' : currentSymbol)
+            .arg(direction.isNull() ? ' ' : direction);
+
+    if (initial)
+        string += "i";
+    if (final)
+        string += "f";
+
     return string;
 }
 
 Rule Rule::fromString(const QString & in)
 {
     QString textRule = in.simplified();
-    QRegularExpression regExp("^q[0-9]+.->q[0-9]+.[RLN]$");
+    QRegularExpression regExp("^q[0-9]+.->q[0-9]+.[RLN]i?f?$");
     regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
     if (!regExp.match(textRule).hasMatch())
         return Rule();
+
+    bool isFinal = textRule.at(textRule.size() - 1) == 'f';
+    if (isFinal)
+        textRule.remove(textRule.size() - 1, 1);
+
+    bool isInitial = textRule.at(textRule.size() - 1) == 'i';
+    if (isInitial)
+        textRule.remove(textRule.size() - 1, 1);
 
     for (int i = 1; i < textRule.size(); i++)
         if (textRule.at(i - 1) == '-' && textRule.at(i) == '>')
@@ -72,6 +95,8 @@ Rule Rule::fromString(const QString & in)
             QChar nextSymbol = textRule.at(textRule.size() - 2);
             int nextState = textRule.mid(i + 2, textRule.size() - 3 - (i + 1)).toInt();
             Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
+            rule.setInitial(isInitial);
+            rule.setFinal(isFinal);
             return rule;
         }
 

@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     red = QColor("#ffcccc");
     contextMenu = new QMenu();
     contextMenu->addActions(QList<QAction *>() << ui->actionInitial << ui->actionFinal);
+    addRow();
 }
 
 MainWindow::~MainWindow()
@@ -43,10 +44,13 @@ void MainWindow::on_actionSave_triggered()
     restoreRulesFromTable();
 
     QFile file(fileName);
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
+
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+        return;
+
     QTextStream out(&file);
     for (const Rule & rule : rules)
-         out << rule.toString() << "\n";
+         out << rule.toString() << '\n';
 
     file.close();
 }
@@ -62,7 +66,10 @@ void MainWindow::on_actionLoad_triggered()
         return;
 
     QFile file(fileName);
-    file.open(QIODevice::ReadOnly);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
     rules.clear();
 
     while (!file.atEnd())
@@ -80,7 +87,8 @@ void MainWindow::on_actionLoad_triggered()
 void MainWindow::loadRulesToTable()
 {
     ui->rulesTable->clearContents();
-    ui->rulesTable->setRowCount(1);
+    ui->rulesTable->setRowCount(0);
+    addRow();
 
     for (const Rule & rule : rules)
     {
@@ -97,7 +105,11 @@ void MainWindow::loadRulesToTable()
                                 new QTableWidgetItem(QString("%1").arg(rule.getNextSymbol())));
         ui->rulesTable->setItem(row, column++,
                                 new QTableWidgetItem(QString("%1").arg(rule.getDirection())));
-        ui->rulesTable->setRowCount(ui->rulesTable->rowCount() + 1);
+        if (rule.isInitial())
+            setRowColor(green, row);
+
+        if (rule.isFinal())
+            setRowColor(red, row);
     }
 
     ui->rulesTable->update();
@@ -110,19 +122,28 @@ void MainWindow::restoreRulesFromTable()
     for (int row = 0; row < ui->rulesTable->rowCount(); row++)
     {
         int column = 0;
-        int currentState = ui->rulesTable->item(row, column++)->text().toInt();
-        QChar currentSymbol = ui->rulesTable->item(row, column++)->text().at(0);
-        int nextState = ui->rulesTable->item(row, column++)->text().toInt();
-        QChar nextSymbol= ui->rulesTable->item(row, column++)->text().at(0);
-        QChar direction = ui->rulesTable->item(row, column++)->text().at(0);
+        int currentState = -1, nextState = -1;
+        QChar currentSymbol, nextSymbol, direction;
+
+        currentState = ui->rulesTable->item(row, column++)->text().toInt();
+
+        if (!ui->rulesTable->item(row, column)->text().isEmpty())
+            currentSymbol = ui->rulesTable->item(row, column++)->text().at(0);
+
+        nextState = ui->rulesTable->item(row, column++)->text().toInt();
+
+        if (!ui->rulesTable->item(row, column)->text().isEmpty())
+            nextSymbol = ui->rulesTable->item(row, column++)->text().at(0);
+
+        if (!ui->rulesTable->item(row, column)->text().isEmpty())
+            direction = ui->rulesTable->item(row, column++)->text().at(0);
+
         Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
 
-        if (ui->rulesTable->item(row, 0) != nullptr &&
-            ui->rulesTable->item(row, 0)->backgroundColor() == green)
+        if (ui->rulesTable->item(row, 0)->backgroundColor() == green)
             rule.setInitial(true);
 
-        if (ui->rulesTable->item(row, 0) != nullptr &&
-            ui->rulesTable->item(row, 0)->backgroundColor() == red)
+        if (ui->rulesTable->item(row, 0)->backgroundColor() == red)
             rule.setFinal(true);
 
         if (!rule.isEmpty())
@@ -173,6 +194,9 @@ void MainWindow::on_rulesTable_itemChanged(QTableWidgetItem *item)
     default:
         item->setText(QString());
     }
+
+    if (item->row() == ui->rulesTable->rowCount() - 1)
+        addRow();
 }
 
 void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
@@ -181,6 +205,9 @@ void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
 
     if (text.size() > 1)
           item->setText(text.at(text.size() - 1));
+
+    if (item->column() == ui->tapeTable->columnCount() - 1)
+        ui->tapeTable->setColumnCount(ui->tapeTable->columnCount() + 1);
 }
 
 void MainWindow::on_actionStart_Pause_triggered()
@@ -197,26 +224,12 @@ void MainWindow::setRowColor(const QColor & color, int currentRow)
 {
     for (int row = 0; row < ui->rulesTable->rowCount(); row++)
         for (int column = 0; column < ui->rulesTable->columnCount(); column++)
-        {
-            QTableWidgetItem *item = ui->rulesTable->item(row, column);
-            if (item == nullptr)
-                break;
-            if (item->backgroundColor() == color)
-                item->setBackgroundColor(Qt::white);
-        }
+            if (ui->rulesTable->item(row, column)->backgroundColor() == color)
+                ui->rulesTable->item(row, column)->setBackgroundColor(Qt::white);
 
     for (int column = 0; column < ui->rulesTable->columnCount(); column++)
-    {
-        QTableWidgetItem *item = ui->rulesTable->item(currentRow, column);
+        ui->rulesTable->item(currentRow, column)->setBackgroundColor(color);
 
-        if (item == nullptr)
-        {
-            item = new QTableWidgetItem();
-            ui->rulesTable->setItem(currentRow, column, item);
-        }
-
-        item->setBackgroundColor(color);
-    }
 }
 
 void MainWindow::on_actionInitial_triggered()
@@ -229,4 +242,12 @@ void MainWindow::on_actionFinal_triggered()
 {
     int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(contextMenu->pos()).y());
     setRowColor(red, currentRow);
+}
+
+void MainWindow::addRow()
+{
+    ui->rulesTable->setRowCount(ui->rulesTable->rowCount() + 1);
+    for (int column = 0; column < ui->rulesTable->columnCount(); column++)
+        ui->rulesTable->setItem(ui->rulesTable->rowCount() - 1, column,
+                                new QTableWidgetItem());
 }

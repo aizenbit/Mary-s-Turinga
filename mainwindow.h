@@ -29,12 +29,12 @@ private slots:
     void on_actionStart_Pause_triggered();
     void on_rulesTable_customContextMenuRequested(const QPoint &pos);
     void on_actionInitial_triggered();
+    void on_actionFinal_triggered();
 
     void loadRulesToTable();
     void restoreRulesFromTable();
     void setRowColor(const QColor & color, int currentRow);
-
-    void on_actionFinal_triggered();
+    void addRow();
 
 private:
     Ui::MainWindow *ui;

@@ -48,7 +48,7 @@
          <bool>false</bool>
         </property>
         <property name="rowCount">
-         <number>50</number>
+         <number>0</number>
         </property>
         <property name="columnCount">
          <number>5</number>
@@ -59,56 +59,6 @@
         <attribute name="verticalHeaderVisible">
          <bool>false</bool>
         </attribute>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
-        <row/>
         <column>
          <property name="text">
           <string>State</string>
@@ -167,7 +117,7 @@
          <number>1</number>
         </property>
         <property name="columnCount">
-         <number>50</number>
+         <number>15</number>
         </property>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>40</number>
@@ -182,41 +132,6 @@
          <bool>false</bool>
         </attribute>
         <row/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
         <column/>
         <column/>
         <column/>
