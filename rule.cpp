@@ -3,11 +3,27 @@
 Rule::Rule(QObject *parent) : QObject(parent)
 {
     directions << 'R' << 'L' << 'N' << 'r' << 'l' << 'n';
-    this->currentState = 0;
+    this->currentState = -1;
     this->currentSymbol = QChar();
-    this->nextState = 0;
+    this->nextState = -1;
     this->nextSymbol = QChar();
     this->direction = 'N';
+    empty = true;
+}
+
+Rule::Rule(const Rule & other) : QObject(other.parent())
+{
+    *this = other;
+}
+
+void Rule::operator =(const Rule & other)
+{
+    currentState = other.currentState;
+    currentSymbol = other.currentSymbol;
+    nextState = other.nextState;
+    nextSymbol = other.nextSymbol;
+    direction = other.direction;
+    empty = other.empty;
 }
 
 Rule::Rule(int currentState, QChar currentSymbol,
@@ -27,6 +43,8 @@ Rule::Rule(int currentState, QChar currentSymbol,
         this->direction = direction;
     else
         this->direction = 'N';
+
+    empty = false;
 }
 
 QString Rule::toString() const
@@ -36,24 +54,26 @@ QString Rule::toString() const
     return string;
 }
 
-bool Rule::fromString(const QString & in)
+Rule Rule::fromString(const QString & in)
 {
+    QString textRule = in.simplified();
     QRegularExpression regExp("^q[0-9]+.->q[0-9]+.[RLN]$");
     regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
-    if (!regExp.match(in).hasMatch())
-        return false;
+    if (!regExp.match(textRule).hasMatch())
+        return Rule();
 
-    for (int i = 1; i < in.size(); i++)
-        if (in.at(i - 1) == '-' && in.at(i) == '>')
+    for (int i = 1; i < textRule.size(); i++)
+        if (textRule.at(i - 1) == '-' && textRule.at(i) == '>')
         {
-            currentSymbol = in.at(i - 2);
-            currentState = in.mid(1, i - 3).toInt();
-            direction = in.at(in.size() - 1);
-            nextSymbol = in.at(in.size() - 2);
-            nextState = in.mid(i + 2, in.size() - 3 - (i + 1)).toInt();
-            break;
+            QChar currentSymbol = textRule.at(i - 2);
+            int currentState = textRule.mid(1, i - 3).toInt();
+            QChar direction = textRule.at(textRule.size() - 1);
+            QChar nextSymbol = textRule.at(textRule.size() - 2);
+            int nextState = textRule.mid(i + 2, textRule.size() - 3 - (i + 1)).toInt();
+            Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
+            return rule;
         }
 
-    return true;
+    return Rule();
 }

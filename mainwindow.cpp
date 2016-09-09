@@ -24,3 +24,47 @@ void MainWindow::on_actionHelp_triggered()
                                 "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga<a></p>");
     aboutBox.exec();
 }
+
+void MainWindow::on_actionSave_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(0, tr("Save"), "",                                                          
+                                                       tr("txt") + "(*.txt);;" +
+                                                       tr("tm") +  "(*.tm);;" +
+                                                       tr("All Files") + "(*.*)",
+                                                    0);
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&file);
+    for (const Rule & rule : rules)
+         out << rule.toString() << "\n";
+
+    file.close();
+}
+
+void MainWindow::on_actionLoad_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Save"), "",
+                                                          tr("tm or txt") +
+                                                          "(*.tm, *.txt);;" +
+                                                          tr("All Files") +
+                                                          "(*.*)", 0);
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly);
+    rules.clear();
+
+    while (!file.atEnd())
+    {
+        QString line = file.readLine();
+        Rule rule = Rule::fromString(line);
+
+        if (!rule.isEmpty())
+            rules.push_back(rule);
+    }
+
+}
