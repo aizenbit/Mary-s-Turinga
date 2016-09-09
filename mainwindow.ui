@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
+    <width>545</width>
     <height>593</height>
    </rect>
   </property>
@@ -32,14 +32,32 @@
       </item>
       <item>
        <widget class="QTableWidget" name="rulesTable">
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+        </property>
+        <property name="textElideMode">
+         <enum>Qt::ElideRight</enum>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
         <property name="rowCount">
          <number>50</number>
         </property>
         <property name="columnCount">
          <number>5</number>
         </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>100</number>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
         </attribute>
         <row/>
         <row/>
@@ -139,6 +157,12 @@
           <height>90</height>
          </size>
         </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
         <property name="rowCount">
          <number>1</number>
         </property>
@@ -219,7 +243,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>580</width>
+     <width>545</width>
      <height>25</height>
     </rect>
    </property>

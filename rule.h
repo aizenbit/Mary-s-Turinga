@@ -19,12 +19,12 @@ public:
          QObject *parent = 0);
 
     QString toString() const;
-    int getCurrentState() {return currentState;}
-    int getNextState() {return nextState;}
-    QChar getCurrentSymbol() {return currentSymbol;}
-    QChar getNextSymbol() {return nextSymbol;}
-    QChar getDirection() {return direction;}
-    QSet<QChar> getDirections() {return directions;}
+    int getCurrentState() const {return currentState;}
+    int getNextState() const {return nextState;}
+    QChar getCurrentSymbol() const {return currentSymbol;}
+    QChar getNextSymbol() const {return nextSymbol;}
+    QChar getDirection() const {return direction;}
+    QSet<QChar> getDirections() const {return directions;}
     bool isEmpty() {return empty;}
     void operator =(const Rule & other);
     static Rule fromString(const QString &in);

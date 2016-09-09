@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QTableWidgetItem>
 #include "rule.h"
 
 namespace Ui {
@@ -21,10 +22,13 @@ public:
 
 private slots:
     void on_actionHelp_triggered();
-
     void on_actionSave_triggered();
-
     void on_actionLoad_triggered();
+
+    void loadRulesToTable();
+    void restoreRulesFromTable();
+    void on_rulesTable_itemChanged(QTableWidgetItem *item);
+    void on_tapeTable_itemChanged(QTableWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;

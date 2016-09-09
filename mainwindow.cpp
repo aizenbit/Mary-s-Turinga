@@ -35,6 +35,8 @@ void MainWindow::on_actionSave_triggered()
     if (fileName.isEmpty())
         return;
 
+    restoreRulesFromTable();
+
     QFile file(fileName);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file);
@@ -67,4 +69,103 @@ void MainWindow::on_actionLoad_triggered()
             rules.push_back(rule);
     }
 
+    loadRulesToTable();
+}
+
+void MainWindow::loadRulesToTable()
+{
+    ui->rulesTable->clearContents();
+    ui->rulesTable->setRowCount(1);
+
+    for (const Rule & rule : rules)
+    {
+        int row = ui->rulesTable->rowCount() - 1;
+        int column = 0;
+
+        ui->rulesTable->setItem(row, column++,
+                                new QTableWidgetItem(QString("%1").arg(rule.getCurrentState())));
+        ui->rulesTable->setItem(row, column++,
+                                new QTableWidgetItem(QString("%1").arg(rule.getCurrentSymbol())));
+        ui->rulesTable->setItem(row, column++,
+                                new QTableWidgetItem(QString("%1").arg(rule.getNextState())));
+        ui->rulesTable->setItem(row, column++,
+                                new QTableWidgetItem(QString("%1").arg(rule.getNextSymbol())));
+        ui->rulesTable->setItem(row, column++,
+                                new QTableWidgetItem(QString("%1").arg(rule.getDirection())));
+        ui->rulesTable->setRowCount(ui->rulesTable->rowCount() + 1);
+    }
+
+    ui->rulesTable->update();
+}
+
+void MainWindow::restoreRulesFromTable()
+{
+    rules.clear();
+
+    for (int row = 0; row < ui->rulesTable->rowCount(); row++)
+    {
+        int column = 0;
+        int currentState = ui->rulesTable->item(row, column++)->text().toInt();
+        QChar currentSymbol = ui->rulesTable->item(row, column++)->text().at(0);
+        int nextState = ui->rulesTable->item(row, column++)->text().toInt();
+        QChar nextSymbol= ui->rulesTable->item(row, column++)->text().at(0);
+        QChar direction = ui->rulesTable->item(row, column++)->text().at(0);
+        Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
+
+        if (!rule.isEmpty())
+            rules.push_back(rule);
+    }
+}
+
+void MainWindow::on_rulesTable_itemChanged(QTableWidgetItem *item)
+{
+    bool isInteger = false;
+    QString text = item->text();
+    Rule rule;
+
+    if (text.isEmpty())
+        return;
+
+    switch (item->column())
+    {
+    case 0: case 2:
+        text.toInt(&isInteger);
+
+        if (!isInteger)
+            text.remove(QRegularExpression("[^0-9]"));
+
+        item->setText(text);
+        break;
+
+    case 1: case 3:
+        if (text.size() > 1)
+              item->setText(text.at(text.size() - 1));
+        break;
+
+    case 4:
+        if (text.at(0) == '>')
+            text[0] = 'R';
+        if (text.at(0) == '<')
+            text[0] = 'L';
+        if (text.at(0) == '=')
+            text[0] = 'N';
+
+        if (text.size() == 1 && rule.getDirections().contains(text.at(0)))
+            item->setText(text);
+        else
+            item->setText(QString());
+
+        break;
+
+    default:
+        item->setText(QString());
+    }
+}
+
+void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
+{
+    QString text = item->text();
+
+    if (text.size() > 1)
+          item->setText(text.at(text.size() - 1));
 }
