@@ -9,9 +9,12 @@ MainWindow::MainWindow(QWidget *parent) :
     run = false;
     green = QColor("#ccffcc");
     red = QColor("#ffcccc");
-    contextMenu = new QMenu();
-    contextMenu->addActions(QList<QAction *>() << ui->actionInitial << ui->actionFinal);
+    rulesContextMenu = new QMenu();
+    rulesContextMenu->addActions(QList<QAction *>() << ui->actionInitial << ui->actionFinal);
+    tapeContextMenu = new QMenu();
+    tapeContextMenu->addActions(QList<QAction *>() << ui->actionInitial_Celll);
     addRow();
+    addCell();
 }
 
 MainWindow::~MainWindow()
@@ -151,6 +154,25 @@ void MainWindow::restoreRulesFromTable()
     }
 }
 
+void MainWindow::loadCharactersToTape()
+{
+    tape.clear();
+
+    for (int column = 0; column < ui->tapeTable->columnCount(); column++)
+    {
+        QTableWidgetItem * item = ui->tapeTable->item(0, column);
+        if (!item->text().isEmpty())
+        {
+            tape.push_back(item->text().at(0));
+
+            if (item->backgroundColor() == green)
+                selectedCharacter = column;
+        }
+        else
+            tape.push_back(QChar());
+    }
+}
+
 void MainWindow::on_rulesTable_itemChanged(QTableWidgetItem *item)
 {
     bool isInteger = false;
@@ -203,24 +225,56 @@ void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
 {
     QString text = item->text();
 
+    if (text.isEmpty())
+        return;
+
     if (text.size() > 1)
           item->setText(text.at(text.size() - 1));
 
     if (item->column() == ui->tapeTable->columnCount() - 1)
-        ui->tapeTable->setColumnCount(ui->tapeTable->columnCount() + 1);
+        addCell();
 }
 
 void MainWindow::on_actionStart_Pause_triggered()
 {
+    loadRulesToTable();
+    loadCharactersToTape();
+    runTimeRules = rules;
+    runTimeTape = tape;
 
+    if (runTimeRules.isEmpty() || runTimeTape.isEmpty())
+        return;
+
+    Rule &currentRule = runTimeRules[0];
+
+    for (Rule &rule : runTimeRules)
+        if (rule.isInitial())
+        {
+            currentRule = rule;
+            break;
+        }
+
+    run = true;
+
+    /*while (!currentRule.isFinal() && run)
+    {
+
+    }*/
+
+    run = false;
 }
 
 void MainWindow::on_rulesTable_customContextMenuRequested(const QPoint &pos)
 {
-    contextMenu->exec(ui->rulesTable->mapToGlobal(pos));
+    rulesContextMenu->exec(ui->rulesTable->mapToGlobal(pos));
 }
 
-void MainWindow::setRowColor(const QColor & color, int currentRow)
+void MainWindow::on_tapeTable_customContextMenuRequested(const QPoint &pos)
+{
+    tapeContextMenu->exec(ui->tapeTable->mapToGlobal(pos));
+}
+
+void MainWindow::setRowColor(const QColor & color, const int currentRow)
 {
     for (int row = 0; row < ui->rulesTable->rowCount(); row++)
         for (int column = 0; column < ui->rulesTable->columnCount(); column++)
@@ -229,19 +283,36 @@ void MainWindow::setRowColor(const QColor & color, int currentRow)
 
     for (int column = 0; column < ui->rulesTable->columnCount(); column++)
         ui->rulesTable->item(currentRow, column)->setBackgroundColor(color);
+}
 
+void MainWindow::setCellColor(const QColor & color, const int currentColumn)
+{
+    for (int column = 0; column < ui->tapeTable->columnCount(); column++)
+        if (ui->tapeTable->item(0, column)->backgroundColor() == color)
+        {
+            ui->tapeTable->item(0, column)->setBackgroundColor(Qt::white);
+            break;
+        }
+
+    ui->tapeTable->item(0, currentColumn)->setBackgroundColor(color);
 }
 
 void MainWindow::on_actionInitial_triggered()
 {
-    int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(contextMenu->pos()).y());
+    int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(rulesContextMenu->pos()).y());
     setRowColor(green, currentRow);
 }
 
 void MainWindow::on_actionFinal_triggered()
 {
-    int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(contextMenu->pos()).y());
+    int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(rulesContextMenu->pos()).y());
     setRowColor(red, currentRow);
+}
+
+void MainWindow::on_actionInitial_Celll_triggered()
+{
+    int currentColumn = ui->tapeTable->columnAt(ui->tapeTable->mapFromGlobal(tapeContextMenu->pos()).x());
+    setCellColor(green, currentColumn);
 }
 
 void MainWindow::addRow()
@@ -251,3 +322,11 @@ void MainWindow::addRow()
         ui->rulesTable->setItem(ui->rulesTable->rowCount() - 1, column,
                                 new QTableWidgetItem());
 }
+
+void MainWindow::addCell()
+{
+    ui->tapeTable->setColumnCount(ui->tapeTable->columnCount() + 1);
+    ui->tapeTable->setItem(0, ui->tapeTable->columnCount() - 1,
+                           new QTableWidgetItem());
+}
+

@@ -107,6 +107,9 @@
           <height>90</height>
          </size>
         </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
         <property name="editTriggers">
          <set>QAbstractItemView::CurrentChanged|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
         </property>
@@ -117,7 +120,7 @@
          <number>1</number>
         </property>
         <property name="columnCount">
-         <number>15</number>
+         <number>0</number>
         </property>
         <attribute name="horizontalHeaderDefaultSectionSize">
          <number>40</number>
@@ -132,21 +135,6 @@
          <bool>false</bool>
         </attribute>
         <row/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
-        <column/>
        </widget>
       </item>
      </layout>
@@ -222,6 +210,11 @@
   <action name="actionFinal">
    <property name="text">
     <string>Final</string>
+   </property>
+  </action>
+  <action name="actionInitial_Celll">
+   <property name="text">
+    <string>Initial Celll</string>
    </property>
   </action>
  </widget>

@@ -28,18 +28,28 @@ private slots:
     void on_tapeTable_itemChanged(QTableWidgetItem *item);
     void on_actionStart_Pause_triggered();
     void on_rulesTable_customContextMenuRequested(const QPoint &pos);
+    void on_tapeTable_customContextMenuRequested(const QPoint &pos);
     void on_actionInitial_triggered();
     void on_actionFinal_triggered();
+    void on_actionInitial_Celll_triggered();
 
     void loadRulesToTable();
+    void loadCharactersToTape();
     void restoreRulesFromTable();
-    void setRowColor(const QColor & color, int currentRow);
+    void setRowColor(const QColor & color, const int currentRow);
+    void setCellColor(const QColor & color, const int currentColumn);
     void addRow();
+    void addCell();
+
 
 private:
     Ui::MainWindow *ui;
     QVector<Rule> rules;
-    QMenu *contextMenu;
+    QVector<Rule> runTimeRules;
+    QVector<QChar> tape;
+    QVector<QChar> runTimeTape;
+    int selectedCharacter, runTimeSelectedCharacter;
+    QMenu *rulesContextMenu, *tapeContextMenu;
     bool run;
 
     QColor green, red;
