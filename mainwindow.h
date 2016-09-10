@@ -35,7 +35,8 @@ private slots:
     void on_actionInitial_Celll_triggered();
 
     void loadRulesToTable(QVector<Rule> rules);
-    void loadCharactersToTape();
+    void loadCharactersToTape(QVector<QChar> tape);
+    void restoreCharactersFromTape();
     void restoreRulesFromTable();
     void setRowColor(const QColor & color, const int currentRow, bool single = true);
     void setCellColor(const QColor & color, const int currentColumn);
@@ -44,6 +45,7 @@ private slots:
     void delay(int msec);
     void start();
     void selectRow(Rule rule);
+    void selectCell(int cell);
     void checkTape();
 
 private:
@@ -53,7 +55,7 @@ private:
     QMultiMap<int, Rule> states;
     QVector<QChar> tape;
     QVector<QChar> runTimeTape;
-    int selectedCharacter, runTimeSelectedCharacter, currentState;
+    int initialCharacter, runTimeSelectedCharacter, currentState;
     QMenu *rulesContextMenu, *tapeContextMenu;
     bool run;
     int delayTime, maxTapeSize;

@@ -73,7 +73,7 @@ QString Rule::toString() const
             .arg(currentState)
             .arg(currentSymbol.isNull() ? ' ' : currentSymbol)
             .arg(nextState)
-            .arg(nextSymbol.isNull() ? ' ' : currentSymbol)
+            .arg(nextSymbol.isNull() ? ' ' : nextSymbol)
             .arg(direction.isNull() ? ' ' : direction);
 
     if (initial)
@@ -87,17 +87,17 @@ QString Rule::toString() const
 Rule Rule::fromString(const QString & in)
 {
     QString textRule = in.simplified();
-    QRegularExpression regExp("^q[0-9]+.->q[0-9]+.[RLN]i?f?$");
+    QRegularExpression regExp("^q[0-9]+.->q[0-9]+.[RLN][Ii]?[Ff]?$");
     regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
     if (!regExp.match(textRule).hasMatch())
         return Rule();
 
-    bool isFinal = textRule.at(textRule.size() - 1) == 'f';
+    bool isFinal = textRule.at(textRule.size() - 1).toLower() == 'f';
     if (isFinal)
         textRule.remove(textRule.size() - 1, 1);
 
-    bool isInitial = textRule.at(textRule.size() - 1) == 'i';
+    bool isInitial = textRule.at(textRule.size() - 1).toLower() == 'i';
     if (isInitial)
         textRule.remove(textRule.size() - 1, 1);
 

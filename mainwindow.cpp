@@ -15,8 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     tapeContextMenu->addActions(QList<QAction *>() << ui->actionInitial_Celll);
     addRow();
     addCell();
-    delayTime = 1000;
+    delayTime = 500;
     maxTapeSize = 999;
+    initialCharacter = -1;
 }
 
 MainWindow::~MainWindow()
@@ -49,6 +50,7 @@ void MainWindow::on_actionSave_triggered()
         return;
 
     restoreRulesFromTable();
+    restoreCharactersFromTape();
 
     QFile file(fileName);
 
@@ -58,6 +60,18 @@ void MainWindow::on_actionSave_triggered()
     QTextStream out(&file);
     for (const Rule & rule : rules)
          out << rule.toString() << '\n';
+
+    if (!tape.isEmpty())
+    {
+        out << "Tape:\n";
+        for (int i  = 0; i < tape.size(); i++)
+        {
+            out << (tape.at(i).isNull() ? ' ' : tape.at(i));
+
+            if (initialCharacter == i)
+                out << "\\i";
+        }
+    }
 
     file.close();
 }
@@ -82,13 +96,38 @@ void MainWindow::on_actionLoad_triggered()
     while (!file.atEnd())
     {
         QString line = file.readLine();
+
+        if (line.simplified().toLower() == "tape:")
+            break;
+
         Rule rule = Rule::fromString(line);
 
         if (!rule.isEmpty())
             rules.push_back(rule);
     }
 
+    tape.clear();
+
+    if (!file.atEnd())
+    {
+        QString line = file.readLine();
+
+        for (int i = 0; i < line.size(); i++)
+        {
+            if (i < line.size() - 1 &&
+                    line.at(i) == '\\' &&
+                    line.at(i + 1).toLower() == 'i')
+            {
+                initialCharacter = i >= 0 ? i - 1 : 0;
+                i++;
+                continue;
+            }
+            tape.push_back(line.at(i));
+        }
+
+    }
     loadRulesToTable(rules);
+    loadCharactersToTape(tape);
 }
 
 void MainWindow::loadRulesToTable(QVector<Rule> rules)
@@ -96,6 +135,9 @@ void MainWindow::loadRulesToTable(QVector<Rule> rules)
     ui->rulesTable->clearContents();
     ui->rulesTable->setRowCount(0);
     addRow();
+
+    if (rules.isEmpty())
+        return;
 
     for (const Rule & rule : rules)
     {
@@ -158,7 +200,7 @@ void MainWindow::restoreRulesFromTable()
     }
 }
 
-void MainWindow::loadCharactersToTape()
+void MainWindow::restoreCharactersFromTape()
 {
     tape.clear();
 
@@ -170,11 +212,28 @@ void MainWindow::loadCharactersToTape()
             tape.push_back(item->text().at(0));
 
             if (item->backgroundColor() == green)
-                selectedCharacter = column;
+                initialCharacter = column;
         }
         else
             tape.push_back(QChar());
     }
+}
+
+void MainWindow::loadCharactersToTape(QVector<QChar> tape)
+{
+    ui->tapeTable->clearContents();
+    ui->tapeTable->setColumnCount(0);
+    addCell();
+
+    if (tape.isEmpty())
+        return;
+
+    for (const QChar & character : tape)
+
+        ui->tapeTable->setItem(0, ui->tapeTable->columnCount() - 1,
+                               new QTableWidgetItem(character));
+
+    setCellColor(green, initialCharacter);
 }
 
 void MainWindow::on_rulesTable_itemChanged(QTableWidgetItem *item)
@@ -246,11 +305,11 @@ void MainWindow::on_actionStart_Pause_triggered()
 
 void MainWindow::start()
 {
-    loadRulesToTable(rules);
-    loadCharactersToTape();
+    restoreRulesFromTable();
+    restoreCharactersFromTape();
     runTimeRules = rules;
     runTimeTape = tape;
-    runTimeSelectedCharacter = selectedCharacter;
+    runTimeSelectedCharacter = initialCharacter;
 
     if (runTimeRules.isEmpty() || runTimeTape.isEmpty())
         return;
@@ -276,8 +335,9 @@ void MainWindow::start()
         for(Rule &rule : states.values(currentState))
         {
             checkTape();
-            //loadRulesToTable(runTimeRules);
             selectRow(rule);
+            selectCell(runTimeSelectedCharacter);
+
             if (runTimeTape[runTimeSelectedCharacter] == rule.getCurrentSymbol() ||
                     rule.getCurrentSymbol().isNull() || rule.getCurrentSymbol().isSpace())
             {
@@ -296,8 +356,10 @@ void MainWindow::start()
                 break;
             }
         }
+
         if (stop)
             break;
+        loadCharactersToTape(runTimeTape);
         delay(delayTime);
     }
 
@@ -312,6 +374,13 @@ void MainWindow::selectRow(Rule rule)
            ui->rulesTable->selectRow(i);
            break;
        }
+}
+
+void MainWindow::selectCell(int cell)
+{
+    if (cell < ui->tapeTable->columnCount())
+        ui->tapeTable->selectColumn(cell);
+        //ui->tapeTable->selectAll();
 }
 
 void MainWindow::checkTape()
