@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTableWidgetItem>
+#include <QTime>
 #include "rule.h"
 
 namespace Ui {
@@ -33,25 +34,29 @@ private slots:
     void on_actionFinal_triggered();
     void on_actionInitial_Celll_triggered();
 
-    void loadRulesToTable();
+    void loadRulesToTable(QVector<Rule> rules);
     void loadCharactersToTape();
     void restoreRulesFromTable();
-    void setRowColor(const QColor & color, const int currentRow);
+    void setRowColor(const QColor & color, const int currentRow, bool single = true);
     void setCellColor(const QColor & color, const int currentColumn);
     void addRow();
     void addCell();
-
+    void delay(int msec);
+    void start();
+    void selectRow(Rule rule);
+    void checkTape();
 
 private:
     Ui::MainWindow *ui;
     QVector<Rule> rules;
     QVector<Rule> runTimeRules;
+    QMultiMap<int, Rule> states;
     QVector<QChar> tape;
     QVector<QChar> runTimeTape;
-    int selectedCharacter, runTimeSelectedCharacter;
+    int selectedCharacter, runTimeSelectedCharacter, currentState;
     QMenu *rulesContextMenu, *tapeContextMenu;
     bool run;
-
+    int delayTime, maxTapeSize;
     QColor green, red;
 
 };

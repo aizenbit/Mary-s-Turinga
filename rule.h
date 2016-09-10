@@ -18,7 +18,7 @@ public:
          int nextState, QChar nextSymbol, QChar direction,
          QObject *parent = 0);
     void operator =(const Rule & other);
-
+    bool operator ==(const Rule & other);
     void setInitial(bool initial) {this->initial = initial;}
     void setFinal(bool final) {this->final = final;}
     bool isInitial() const {return initial;}
@@ -28,7 +28,7 @@ public:
     int getNextState() const {return nextState;}
     QChar getCurrentSymbol() const {return currentSymbol;}
     QChar getNextSymbol() const {return nextSymbol;}
-    QChar getDirection() const {return direction;}
+    QChar getDirection() const {return direction.toUpper();}
     QSet<QChar> getDirections() const {return directions;}
 
     QString toString() const;

@@ -30,6 +30,21 @@ void Rule::operator =(const Rule & other)
     final = other.final;
 }
 
+bool Rule::operator ==(const Rule & other)
+{
+    if (currentState == other.currentState &&
+            currentSymbol == other.currentSymbol &&
+            nextState == other.nextState &&
+            nextSymbol == other.nextSymbol &&
+            direction == other.direction &&
+            empty == other.empty &&
+            initial == other.initial &&
+            final == other.final)
+        return true;
+    else
+        return false;
+}
+
 Rule::Rule(int currentState, QChar currentSymbol,
            int nextState, QChar nextSymbol, QChar direction,
            QObject *parent) : Rule(parent)

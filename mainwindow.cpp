@@ -15,11 +15,15 @@ MainWindow::MainWindow(QWidget *parent) :
     tapeContextMenu->addActions(QList<QAction *>() << ui->actionInitial_Celll);
     addRow();
     addCell();
+    delayTime = 1000;
+    maxTapeSize = 999;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete rulesContextMenu;
+    delete tapeContextMenu;
 }
 
 void MainWindow::on_actionHelp_triggered()
@@ -84,10 +88,10 @@ void MainWindow::on_actionLoad_triggered()
             rules.push_back(rule);
     }
 
-    loadRulesToTable();
+    loadRulesToTable(rules);
 }
 
-void MainWindow::loadRulesToTable()
+void MainWindow::loadRulesToTable(QVector<Rule> rules)
 {
     ui->rulesTable->clearContents();
     ui->rulesTable->setRowCount(0);
@@ -112,7 +116,7 @@ void MainWindow::loadRulesToTable()
             setRowColor(green, row);
 
         if (rule.isFinal())
-            setRowColor(red, row);
+            setRowColor(red, row, false);
     }
 
     ui->rulesTable->update();
@@ -237,13 +241,23 @@ void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionStart_Pause_triggered()
 {
-    loadRulesToTable();
+    start();
+}
+
+void MainWindow::start()
+{
+    loadRulesToTable(rules);
     loadCharactersToTape();
     runTimeRules = rules;
     runTimeTape = tape;
+    runTimeSelectedCharacter = selectedCharacter;
 
     if (runTimeRules.isEmpty() || runTimeTape.isEmpty())
         return;
+
+    states.clear();
+    for (Rule &rule : runTimeRules)
+        states.insert(rule.getCurrentState(), rule);
 
     Rule &currentRule = runTimeRules[0];
 
@@ -251,17 +265,66 @@ void MainWindow::on_actionStart_Pause_triggered()
         if (rule.isInitial())
         {
             currentRule = rule;
+            currentState = currentRule.getCurrentState();
             break;
         }
 
     run = true;
-
-    /*while (!currentRule.isFinal() && run)
+    while (!currentRule.isFinal() && run)
     {
+        bool stop = true;
+        for(Rule &rule : states.values(currentState))
+        {
+            checkTape();
+            //loadRulesToTable(runTimeRules);
+            selectRow(rule);
+            if (runTimeTape[runTimeSelectedCharacter] == rule.getCurrentSymbol() ||
+                    rule.getCurrentSymbol().isNull() || rule.getCurrentSymbol().isSpace())
+            {
+                stop = false;
+                if(!rule.getNextSymbol().isNull() && !rule.getNextSymbol().isSpace())
+                    runTimeTape[runTimeSelectedCharacter] = rule.getNextSymbol();
 
-    }*/
+                if(rule.getDirection() == 'R')
+                    runTimeSelectedCharacter++;
+
+                if(rule.getDirection() == 'L')
+                    runTimeSelectedCharacter--;
+
+                currentState = rule.getNextState();
+                currentRule = rule;
+                break;
+            }
+        }
+        if (stop)
+            break;
+        delay(delayTime);
+    }
 
     run = false;
+}
+
+void MainWindow::selectRow(Rule rule)
+{
+   for (int i = 0; i < runTimeRules.size(); i++)
+       if (rule == runTimeRules[i])
+       {
+           ui->rulesTable->selectRow(i);
+           break;
+       }
+}
+
+void MainWindow::checkTape()
+{
+    while (runTimeSelectedCharacter >= runTimeTape.size() && runTimeTape.size() < maxTapeSize)
+        runTimeTape.push_back(QChar());
+
+    if(runTimeSelectedCharacter < 0)
+    {
+        run = false;
+        //TODO: error handling
+        return;
+    }
 }
 
 void MainWindow::on_rulesTable_customContextMenuRequested(const QPoint &pos)
@@ -274,12 +337,13 @@ void MainWindow::on_tapeTable_customContextMenuRequested(const QPoint &pos)
     tapeContextMenu->exec(ui->tapeTable->mapToGlobal(pos));
 }
 
-void MainWindow::setRowColor(const QColor & color, const int currentRow)
+void MainWindow::setRowColor(const QColor & color, const int currentRow, bool single)
 {
-    for (int row = 0; row < ui->rulesTable->rowCount(); row++)
-        for (int column = 0; column < ui->rulesTable->columnCount(); column++)
-            if (ui->rulesTable->item(row, column)->backgroundColor() == color)
-                ui->rulesTable->item(row, column)->setBackgroundColor(Qt::white);
+    if (single)
+        for (int row = 0; row < ui->rulesTable->rowCount(); row++)
+            for (int column = 0; column < ui->rulesTable->columnCount(); column++)
+                if (ui->rulesTable->item(row, column)->backgroundColor() == color)
+                    ui->rulesTable->item(row, column)->setBackgroundColor(Qt::white);
 
     for (int column = 0; column < ui->rulesTable->columnCount(); column++)
         ui->rulesTable->item(currentRow, column)->setBackgroundColor(color);
@@ -306,7 +370,7 @@ void MainWindow::on_actionInitial_triggered()
 void MainWindow::on_actionFinal_triggered()
 {
     int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(rulesContextMenu->pos()).y());
-    setRowColor(red, currentRow);
+    setRowColor(red, currentRow, false);
 }
 
 void MainWindow::on_actionInitial_Celll_triggered()
@@ -328,5 +392,12 @@ void MainWindow::addCell()
     ui->tapeTable->setColumnCount(ui->tapeTable->columnCount() + 1);
     ui->tapeTable->setItem(0, ui->tapeTable->columnCount() - 1,
                            new QTableWidgetItem());
+}
+
+void MainWindow::delay(int msec)
+{
+    QTime dieTime = QTime::currentTime().addMSecs(msec);
+    while (QTime::currentTime() < dieTime)
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
