@@ -6,7 +6,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    run = false;
+    launched = false;
+    pause = false;
     green = QColor("#ccffcc");
     red = QColor("#ffcccc");
     rulesContextMenu = new QMenu();
@@ -300,7 +301,25 @@ void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionStart_Pause_triggered()
 {
-    start();
+    if (!launched && !pause)
+    {
+        launched = true;
+        start();
+        launched = false;
+    }
+
+    if (pause)
+    {
+        pause = false;
+        launched = true;
+        run();
+        launched = false;
+    }
+    else
+    {
+        launched = false;
+        pause = true;
+    }
 }
 
 void MainWindow::start()
@@ -328,42 +347,56 @@ void MainWindow::start()
             break;
         }
 
-    run = true;
-    while (!currentRule.isFinal() && run)
+    run();
+}
+
+void MainWindow::run()
+{
+    while (launched)
     {
-        bool stop = true;
-        for(Rule &rule : states.values(currentState))
-        {
-            checkTape();
-            selectRow(rule);
-            selectCell(runTimeSelectedCharacter);
-
-            if (runTimeTape[runTimeSelectedCharacter] == rule.getCurrentSymbol() ||
-                    rule.getCurrentSymbol().isNull() || rule.getCurrentSymbol().isSpace())
-            {
-                stop = false;
-                if(!rule.getNextSymbol().isNull() && !rule.getNextSymbol().isSpace())
-                    runTimeTape[runTimeSelectedCharacter] = rule.getNextSymbol();
-
-                if(rule.getDirection() == 'R')
-                    runTimeSelectedCharacter++;
-
-                if(rule.getDirection() == 'L')
-                    runTimeSelectedCharacter--;
-
-                currentState = rule.getNextState();
-                currentRule = rule;
-                break;
-            }
-        }
-
-        if (stop)
+        if (!singleStep())
             break;
-        loadCharactersToTape(runTimeTape);
+
         delay(delayTime);
     }
+}
 
-    run = false;
+bool MainWindow::singleStep()
+{
+    bool stop = true;
+    for(Rule &rule : states.values(currentState))
+    {
+        checkTape();
+        selectRow(rule);
+
+
+        if (runTimeTape[runTimeSelectedCharacter] == rule.getCurrentSymbol() ||
+                rule.getCurrentSymbol().isNull() || rule.getCurrentSymbol().isSpace())
+        {
+            if (!rule.isFinal())
+                stop = false;
+
+            if(!rule.getNextSymbol().isNull() && !rule.getNextSymbol().isSpace())
+                runTimeTape[runTimeSelectedCharacter] = rule.getNextSymbol();
+
+            if(rule.getDirection() == 'R')
+                runTimeSelectedCharacter++;
+
+            if(rule.getDirection() == 'L')
+                runTimeSelectedCharacter--;
+
+            currentState = rule.getNextState();
+            break;
+        }
+    }
+
+    if (stop)
+        return false;
+
+    loadCharactersToTape(runTimeTape);
+    selectCell(runTimeSelectedCharacter);
+
+    return true;
 }
 
 void MainWindow::selectRow(Rule rule)
@@ -380,7 +413,6 @@ void MainWindow::selectCell(int cell)
 {
     if (cell < ui->tapeTable->columnCount())
         ui->tapeTable->selectColumn(cell);
-        //ui->tapeTable->selectAll();
 }
 
 void MainWindow::checkTape()
@@ -390,7 +422,7 @@ void MainWindow::checkTape()
 
     if(runTimeSelectedCharacter < 0)
     {
-        run = false;
+        launched = false;
         //TODO: error handling
         return;
     }
