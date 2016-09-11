@@ -43,12 +43,16 @@ private slots:
     void addRow();
     void addCell();
     void delay(int msec);
-    void start();
+    void prepareToStart();
     void run();
     bool singleStep();
     void selectRow(Rule rule);
     void selectCell(int cell);
     void checkTape();
+
+    void on_actionDebug_triggered();
+
+    void on_actionStop_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -59,7 +63,7 @@ private:
     QVector<QChar> runTimeTape;
     int initialCharacter, runTimeSelectedCharacter, currentState;
     QMenu *rulesContextMenu, *tapeContextMenu;
-    bool launched, pause;
+    bool launched, paused, stopped;
     int delayTime, maxTapeSize;
     QColor green, red;
 

@@ -7,7 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     launched = false;
-    pause = false;
+    paused = false;
+    stopped = true;
     green = QColor("#ccffcc");
     red = QColor("#ffcccc");
     rulesContextMenu = new QMenu();
@@ -16,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     tapeContextMenu->addActions(QList<QAction *>() << ui->actionInitial_Celll);
     addRow();
     addCell();
-    delayTime = 500;
+    delayTime = 100;
     maxTapeSize = 999;
     initialCharacter = -1;
 }
@@ -301,16 +302,19 @@ void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionStart_Pause_triggered()
 {
-    if (!launched && !pause)
+    if (!launched && !paused)
     {
+        stopped = false;
         launched = true;
-        start();
+        prepareToStart();
+        run();
         launched = false;
+        paused = false;
     }
 
-    if (pause)
+    if (paused)
     {
-        pause = false;
+        paused = false;
         launched = true;
         run();
         launched = false;
@@ -318,11 +322,11 @@ void MainWindow::on_actionStart_Pause_triggered()
     else
     {
         launched = false;
-        pause = true;
+        paused = true;
     }
 }
 
-void MainWindow::start()
+void MainWindow::prepareToStart()
 {
     restoreRulesFromTable();
     restoreCharactersFromTape();
@@ -346,8 +350,29 @@ void MainWindow::start()
             currentState = currentRule.getCurrentState();
             break;
         }
+}
 
-    run();
+void MainWindow::on_actionDebug_triggered()
+{
+    if (!launched)
+    {
+        prepareToStart();
+        launched = true;
+    }
+
+    singleStep();
+    paused = true;
+}
+
+void MainWindow::on_actionStop_triggered()
+{
+    launched = false;
+    paused = false;
+    stopped = true;
+
+    qApp->processEvents();
+    loadRulesToTable(rules);
+    loadCharactersToTape(tape);
 }
 
 void MainWindow::run()
@@ -368,7 +393,6 @@ bool MainWindow::singleStep()
     {
         checkTape();
         selectRow(rule);
-
 
         if (runTimeTape[runTimeSelectedCharacter] == rule.getCurrentSymbol() ||
                 rule.getCurrentSymbol().isNull() || rule.getCurrentSymbol().isSpace())
@@ -500,5 +524,6 @@ void MainWindow::delay(int msec)
     QTime dieTime = QTime::currentTime().addMSecs(msec);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-}
 
+    qApp->processEvents();
+}
