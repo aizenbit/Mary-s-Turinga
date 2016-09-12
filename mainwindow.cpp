@@ -110,6 +110,9 @@ void MainWindow::on_actionLoad_triggered()
     {
         QString line = file.readLine();
 
+        if (!line.isEmpty() && line.at(0) == '#')
+            continue;
+
         if (line.simplified().toLower() == "tape:")
             break;
 
@@ -127,14 +130,17 @@ void MainWindow::on_actionLoad_triggered()
 
         for (int i = 0; i < line.size(); i++)
         {
+            if (line.at(i) == 'i' && i > 0)
+            {
+                initialCharacter = i - 1;
+                continue;
+            }
+
             if (i < line.size() - 1 &&
                     line.at(i) == '\\' &&
                     line.at(i + 1).toLower() == 'i')
-            {
-                initialCharacter = i >= 0 ? i - 1 : 0;
                 i++;
-                continue;
-            }
+
             tape.push_back(line.at(i));
         }
 
