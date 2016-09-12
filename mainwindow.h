@@ -52,17 +52,17 @@ private slots:
     bool checkTape();
 
     void on_actionDebug_triggered();
-
     void on_actionStop_triggered();
 
 private:
     Ui::MainWindow *ui;
     QVector<Rule> rules;
     QVector<Rule> runTimeRules;
-    QMultiMap<int, Rule> states;
+    QMultiMap<QString, Rule> states;
     QVector<QChar> tape;
     QVector<QChar> runTimeTape;
-    int initialCharacter, runTimeSelectedCharacter, currentState;
+    int initialCharacter, runTimeSelectedCharacter;
+    QString currentState;
     QMenu *rulesContextMenu, *tapeContextMenu;
     bool launched, paused, stopped;
     int delayTime, maxTapeSize;

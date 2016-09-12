@@ -45,8 +45,8 @@ bool Rule::operator ==(const Rule & other)
         return false;
 }
 
-Rule::Rule(int currentState, QChar currentSymbol,
-           int nextState, QChar nextSymbol, QChar direction,
+Rule::Rule(QString currentState, QChar currentSymbol,
+           QString nextState, QChar nextSymbol, QChar direction,
            QObject *parent) : Rule(parent)
 {
     if (currentState > 0)
@@ -69,7 +69,7 @@ Rule::Rule(int currentState, QChar currentSymbol,
 QString Rule::toString() const
 {
 
-    QString string = QString("q%1%2->q%3%4%5")
+    QString string = QString("q%1;%2->q%3;%4;%5")
             .arg(currentState)
             .arg(currentSymbol.isNull() ? ' ' : currentSymbol)
             .arg(nextState)
@@ -87,7 +87,7 @@ QString Rule::toString() const
 Rule Rule::fromString(const QString & in)
 {
     QString textRule = in.simplified();
-    QRegularExpression regExp("^q[0-9]+.->q[0-9]+.[RLN][Ii]?[Ff]?$");
+    QRegularExpression regExp("^q[0-9]+;.->q[0-9]+;.;[RLN][Ii]?[Ff]?$");
     regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
     if (!regExp.match(textRule).hasMatch())
@@ -101,19 +101,27 @@ Rule Rule::fromString(const QString & in)
     if (isInitial)
         textRule.remove(textRule.size() - 1, 1);
 
-    for (int i = 1; i < textRule.size(); i++)
-        if (textRule.at(i - 1) == '-' && textRule.at(i) == '>')
-        {
-            QChar currentSymbol = textRule.at(i - 2);
-            int currentState = textRule.mid(1, i - 3).toInt();
-            QChar direction = textRule.at(textRule.size() - 1);
-            QChar nextSymbol = textRule.at(textRule.size() - 2);
-            int nextState = textRule.mid(i + 2, textRule.size() - 3 - (i + 1)).toInt();
-            Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
-            rule.setInitial(isInitial);
-            rule.setFinal(isFinal);
-            return rule;
-        }
+    int arrow = 0;
+    QStringList elements = textRule.split(QRegularExpression("(;|->)"));
+
+    QChar currentSymbol, nextSymbol, direction;
+    QString currentState = elements.at(0);
+    QString nextState = elements.at(2);
+
+    if (!elements.at(1).isEmpty())
+        currentSymbol = elements.at(1).at(0);
+
+    if (!elements.at(1).isEmpty())
+        nextSymbol = elements.at(3).at(0);
+
+    if (!elements.at(1).isEmpty())
+        direction = elements.at(4).at(0);
+
+    Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
+    rule.setInitial(isInitial);
+    rule.setFinal(isFinal);
+    return rule;
+
 
     return Rule();
 }

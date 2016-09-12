@@ -177,15 +177,14 @@ void MainWindow::restoreRulesFromTable()
     for (int row = 0; row < ui->rulesTable->rowCount(); row++)
     {
         int column = 0;
-        int currentState = -1, nextState = -1;
         QChar currentSymbol, nextSymbol, direction;
 
-        currentState = ui->rulesTable->item(row, column++)->text().toInt();
+        QString currentState = ui->rulesTable->item(row, column++)->text();
 
         if (!ui->rulesTable->item(row, column)->text().isEmpty())
             currentSymbol = ui->rulesTable->item(row, column++)->text().at(0);
 
-        nextState = ui->rulesTable->item(row, column++)->text().toInt();
+        QString nextState = ui->rulesTable->item(row, column++)->text();
 
         if (!ui->rulesTable->item(row, column)->text().isEmpty())
             nextSymbol = ui->rulesTable->item(row, column++)->text().at(0);
@@ -254,12 +253,6 @@ void MainWindow::on_rulesTable_itemChanged(QTableWidgetItem *item)
     switch (item->column())
     {
     case 0: case 2:
-        text.toInt(&isInteger);
-
-        if (!isInteger)
-            text.remove(QRegularExpression("[^0-9]"));
-
-        item->setText(text);
         break;
 
     case 1: case 3:

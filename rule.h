@@ -5,7 +5,7 @@
 #include <QTextStream>
 #include <QRegularExpression>
 #include <QSet>
-#include <QDebug>
+#include <QStringList>
 
 class Rule : public QObject
 {
@@ -14,8 +14,8 @@ class Rule : public QObject
 public:  
     Rule(QObject *parent = 0);
     Rule(const Rule &other);
-    Rule(int currentState, QChar currentSymbol,
-         int nextState, QChar nextSymbol, QChar direction,
+    Rule(QString currentState, QChar currentSymbol,
+         QString nextState, QChar nextSymbol, QChar direction,
          QObject *parent = 0);
     void operator =(const Rule & other);
     bool operator ==(const Rule & other);
@@ -24,8 +24,8 @@ public:
     bool isInitial() const {return initial;}
     bool isFinal() const {return final;}
     bool isEmpty() const {return empty;}
-    int getCurrentState() const {return currentState;}
-    int getNextState() const {return nextState;}
+    QString getCurrentState() const {return currentState;}
+    QString getNextState() const {return nextState;}
     QChar getCurrentSymbol() const {return currentSymbol;}
     QChar getNextSymbol() const {return nextSymbol;}
     QChar getDirection() const {return direction.toUpper();}
@@ -38,7 +38,7 @@ signals:
 public slots:
 
 private:
-    int currentState, nextState;
+    QString currentState, nextState;
     QChar currentSymbol, nextSymbol, direction;
     QSet<QChar> directions;
     bool empty, initial, final;
