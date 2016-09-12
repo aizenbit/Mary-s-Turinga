@@ -86,7 +86,7 @@ QString Rule::toString() const
 Rule Rule::fromString(const QString & in)
 {
     QString textRule = in.simplified();
-    QRegularExpression regExp("^[0-9]+;.->[0-9]+;.;[RLN][Ii]?[Ff]?$");
+    QRegularExpression regExp("^.+;.->.+;.;[RLN][Ii]?[Ff]?$");
     regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
     if (!regExp.match(textRule).hasMatch())

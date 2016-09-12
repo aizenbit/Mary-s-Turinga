@@ -43,12 +43,20 @@ void MainWindow::on_actionHelp_triggered()
     QMessageBox aboutBox;
     aboutBox.setWindowTitle(tr("About") + " Mary's Turinga");
     aboutBox.setIconPixmap(QPixmap("://resources/aboutIcon.png"));
-    aboutBox.setText(tr("Mary's Turinga v%1 (Russian: Машина Тьюринга) is just another emulator of Turing machine.").arg(version));
-    aboutBox.setInformativeText("<p>"
-                                + tr("Distributed under "
+    aboutBox.setText(tr("<strong>Mary's Turinga</strong> v%1 (Russian: Машина Тьюринга) "
+                        "is just another emulator of Turing machine.").arg(version));
+    aboutBox.setInformativeText("<p>" + tr("<strong>Instruction:</strong><br>"
+                                           "Specify the status and data on the tape. In the context menu (RMB), "
+                                           "you can choose the initial and final states, as well as to specify "
+                                           "the position of the read head on the tape.<br>"
+                                           "Whitespace-characters and null characters equivalents and means no reading "
+                                           "from or writing to tape.<br>"
+                                           "If you have any questions, you can create an issue "
+                                           "<a href=https://github.com/aizenbit/Mary-s-Turinga/issues>here</a>.<br><br>") +
+                                  tr("Distributed under "
                                    "<a href=https://github.com/aizenbit/Mary-s-Turinga/blob/master/LICENSE>The MIT License</a>.") +
-                                "<br><br>" + tr("Repository:") + "<br>"
-                                "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga</a><br><br>" +
+                                "<br>" + tr("Repository: ") +
+                                "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga</a><br>" +
                                 tr("Icons designed by <a href=http://www.flaticon.com/authors/freepik>Freepik</a> and "
                                 "<a href=http://www.flaticon.com/authors/hanan>Hanan</a> from "
                                 "<a href=http://www.flaticon.com>FlatIcon</a>.<br></p>"));
@@ -215,21 +223,20 @@ void MainWindow::restoreRulesFromTable()
 
     for (int row = 0; row < ui->rulesTable->rowCount(); row++)
     {
-        int column = 0;
         QChar currentSymbol, nextSymbol, direction;
 
-        QString currentState = ui->rulesTable->item(row, column++)->text();
+        QString currentState = ui->rulesTable->item(row, 0)->text();
 
-        if (!ui->rulesTable->item(row, column)->text().isEmpty())
-            currentSymbol = ui->rulesTable->item(row, column++)->text().at(0);
+        if (!ui->rulesTable->item(row, 1)->text().isEmpty())
+            currentSymbol = ui->rulesTable->item(row, 1)->text().at(0);
 
-        QString nextState = ui->rulesTable->item(row, column++)->text();
+        QString nextState = ui->rulesTable->item(row, 2)->text();
 
-        if (!ui->rulesTable->item(row, column)->text().isEmpty())
-            nextSymbol = ui->rulesTable->item(row, column++)->text().at(0);
+        if (!ui->rulesTable->item(row, 3)->text().isEmpty())
+            nextSymbol = ui->rulesTable->item(row, 3)->text().at(0);
 
-        if (!ui->rulesTable->item(row, column)->text().isEmpty())
-            direction = ui->rulesTable->item(row, column++)->text().at(0);
+        if (!ui->rulesTable->item(row, 4)->text().isEmpty())
+            direction = ui->rulesTable->item(row, 4)->text().at(0);
 
         Rule rule(currentState, currentSymbol, nextState, nextSymbol, direction);
 
@@ -464,7 +471,14 @@ bool MainWindow::singleStep()
     bool stop = true;
 
     if (!checkCodeAndTape())
+    {
+        ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
+        ui->actionDebug->setEnabled(true);
+        ui->actionStart_Pause->setEnabled(true);
+        launched = false;
+        paused = false;
         return false;
+    }
 
     for(Rule &rule : states.values(currentState))
     {
@@ -497,6 +511,8 @@ bool MainWindow::singleStep()
         ui->actionDebug->setEnabled(true);
         ui->actionStart_Pause->setEnabled(true);
         ui->statusBar->showMessage(tr("Done in %1 steps").arg(step), 3000);
+        launched = false;
+        paused = false;
         return false;
     }
 
