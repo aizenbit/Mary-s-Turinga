@@ -37,7 +37,10 @@ void MainWindow::on_actionHelp_triggered()
                                 tr("Mary's Turinga (Russian: Машина Тьюринга) is just another emulator of Turing machine.") + "<br>" +
                                 tr("Distributed under The MIT License. See License and Credist page.") +
                                 "<br><br>" + tr("Repository:") + "<br>"
-                                "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga<a></p>");
+                                "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga</a><br><br>"
+                                "Icons designed by <a href=http://www.flaticon.com/authors/freepik>Freepik</a> and "
+                                "<a href=http://www.flaticon.com/authors/hanan>Hanan</a> from "
+                                "<a href=http://www.flaticon.com>FlatIcon</a>.<br></p>");
     aboutBox.exec();
 }
 
@@ -300,6 +303,19 @@ void MainWindow::on_tapeTable_itemChanged(QTableWidgetItem *item)
         addCell();
 }
 
+void MainWindow::pause(bool pause)
+{
+    paused = pause;
+
+    if (pause)
+    {
+        launched = false;
+        ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
+    }
+    else
+        ui->actionStart_Pause->setIcon(QIcon(":/resources/pause-button.png"));
+}
+
 void MainWindow::on_actionStart_Pause_triggered()
 {
     if (!launched && !paused)
@@ -309,21 +325,19 @@ void MainWindow::on_actionStart_Pause_triggered()
         prepareToStart();
         run();
         launched = false;
-        paused = false;
+        pause(false);
     }
 
     if (paused)
     {
-        paused = false;
+        pause(false);
         launched = true;
         run();
         launched = false;
     }
     else
-    {
-        launched = false;
-        paused = true;
-    }
+        pause();
+
 }
 
 void MainWindow::prepareToStart()

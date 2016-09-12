@@ -45,6 +45,7 @@ private slots:
     void delay(int msec);
     void prepareToStart();
     void run();
+    void pause(bool pause = true);
     bool singleStep();
     void selectRow(Rule rule);
     void selectCell(int cell);

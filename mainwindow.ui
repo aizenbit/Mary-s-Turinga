@@ -179,31 +179,55 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionStart_Pause">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/play-button.png</normaloff>:/resources/play-button.png</iconset>
+   </property>
    <property name="text">
     <string>Start/Pause</string>
    </property>
   </action>
   <action name="actionDebug">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/next-step-button.png</normaloff>:/resources/next-step-button.png</iconset>
+   </property>
    <property name="text">
     <string>Debug</string>
    </property>
   </action>
   <action name="actionStop">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/stop-button.png</normaloff>:/resources/stop-button.png</iconset>
+   </property>
    <property name="text">
     <string>Stop</string>
    </property>
   </action>
   <action name="actionHelp">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/help-button.png</normaloff>:/resources/help-button.png</iconset>
+   </property>
    <property name="text">
     <string>Help</string>
    </property>
   </action>
   <action name="actionLoad">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/load-button.png</normaloff>:/resources/load-button.png</iconset>
+   </property>
    <property name="text">
     <string>Load</string>
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/save-button.png</normaloff>:/resources/save-button.png</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -225,6 +249,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/help-button.png</file>
+        <file>resources/load-button.png</file>
+        <file>resources/next-step-button.png</file>
+        <file>resources/pause-button.png</file>
+        <file>resources/play-button.png</file>
+        <file>resources/save-button.png</file>
+        <file>resources/stop-button.png</file>
+        <file>resources/favicon.ico</file>
+    </qresource>
+</RCC>
