@@ -53,7 +53,7 @@ private slots:
     bool singleStep();
     void selectRow(Rule rule);
     void selectCell(int cell);
-    bool checkTape();
+    bool checkCodeAndTape();
 
 
 
@@ -68,7 +68,7 @@ private:
     QString currentState, version;
     QMenu *rulesContextMenu, *tapeContextMenu;
     bool launched, paused, stopped;
-    int maxTapeSize;
+    int maxTapeSize, step;
     QColor green, red;
     QSpinBox *delaySpinBox;
 };

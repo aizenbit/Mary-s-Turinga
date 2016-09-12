@@ -68,7 +68,6 @@ Rule::Rule(QString currentState, QChar currentSymbol,
 
 QString Rule::toString() const
 {
-
     QString string = QString("%1;%2->%3;%4;%5")
             .arg(currentState)
             .arg(currentSymbol.isNull() ? ' ' : currentSymbol)
@@ -87,7 +86,7 @@ QString Rule::toString() const
 Rule Rule::fromString(const QString & in)
 {
     QString textRule = in.simplified();
-    QRegularExpression regExp("^q[0-9]+;.->q[0-9]+;.;[RLN][Ii]?[Ff]?$");
+    QRegularExpression regExp("^[0-9]+;.->[0-9]+;.;[RLN][Ii]?[Ff]?$");
     regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
     if (!regExp.match(textRule).hasMatch())

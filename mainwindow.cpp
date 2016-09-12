@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     delaySpinBox->setPrefix(tr("Delay: "));
     ui->toolBar->addWidget(delaySpinBox);
     version = "1.0";
+    step = 0;
 }
 
 MainWindow::~MainWindow()
@@ -70,7 +71,10 @@ void MainWindow::on_actionSave_triggered()
     QFile file(fileName);
 
     if (!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        ui->statusBar->showMessage(tr("Cannot save file"), 3000);
         return;
+    }
 
     QTextStream out(&file);
     out << tr("# File created by Mary's Turinga v%1 on %2\n"
@@ -88,10 +92,18 @@ void MainWindow::on_actionSave_triggered()
         out << "Tape:\n";
         for (int i  = 0; i < tape.size(); i++)
         {
-            out << (tape.at(i).isNull() ? ' ' : tape.at(i));
+            if (tape.at(i).isNull())
+                out << ' ';
+            else
+            {
+                if (tape.at(i) == 'i')
+                    out << "\\i";
+                else
+                    out << tape.at(i);
+            }
 
             if (initialCharacter == i)
-                out << "\\i";
+                out << "i";
         }
     }
 
@@ -113,7 +125,7 @@ void MainWindow::on_actionLoad_triggered()
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        ui->statusBar->showMessage(tr("Can't open file"), 3000);
+        ui->statusBar->showMessage(tr("Cannot open file"), 3000);
         return;
     }
 
@@ -265,7 +277,8 @@ void MainWindow::loadCharactersToTape(QVector<QChar> tape)
         ui->tapeTable->setItem(0, ui->tapeTable->columnCount() - 1,
                                new QTableWidgetItem(character));
 
-    setCellColor(green, initialCharacter);
+    if (initialCharacter >= 0)
+        setCellColor(green, initialCharacter);
 }
 
 void MainWindow::on_rulesTable_itemChanged(QTableWidgetItem *item)
@@ -361,7 +374,7 @@ void MainWindow::on_actionStart_Pause_triggered()
     }
 
     pause();
-    ui->statusBar->showMessage(tr("Pause"), 3000);
+    ui->statusBar->showMessage(tr("Paused on step %1").arg(step), 3000);
 }
 
 void MainWindow::prepareToStart()
@@ -371,6 +384,7 @@ void MainWindow::prepareToStart()
     runTimeRules = rules;
     runTimeTape = tape;
     runTimeSelectedCharacter = initialCharacter;
+    step = 0;
 
     if (runTimeRules.isEmpty() || runTimeTape.isEmpty())
         return;
@@ -409,7 +423,7 @@ void MainWindow::on_actionDebug_triggered()
     {
         ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
         ui->actionDebug->setEnabled(false);
-        ui->statusBar->showMessage(tr("Debug finished"), 3000);
+        ui->statusBar->showMessage(tr("Debug finished in %1 steps").arg(step), 3000);
         ui->actionStart_Pause->setEnabled(true);
         paused = false;
         launched = false;
@@ -418,7 +432,7 @@ void MainWindow::on_actionDebug_triggered()
 
 void MainWindow::on_actionStop_triggered()
 {
-    ui->statusBar->showMessage(tr("Stopped"), 3000);
+    ui->statusBar->showMessage(tr("Stopped at step %1").arg(step), 3000);
     launched = false;
     paused = false;
     stopped = true;
@@ -433,6 +447,7 @@ void MainWindow::on_actionStop_triggered()
 
 void MainWindow::run()
 {
+
     while (launched)
     {
         if (!singleStep())
@@ -446,14 +461,13 @@ void MainWindow::run()
 
 bool MainWindow::singleStep()
 {
-    bool stop = true, error = false;
+    bool stop = true;
+
+    if (!checkCodeAndTape())
+        return false;
+
     for(Rule &rule : states.values(currentState))
     {
-        error = !checkTape();
-
-        if (error)
-            break;
-
         selectRow(rule);
 
         if (runTimeTape[runTimeSelectedCharacter] == rule.getCurrentSymbol() ||
@@ -472,18 +486,17 @@ bool MainWindow::singleStep()
                 runTimeSelectedCharacter--;
 
             currentState = rule.getNextState();
+            step++;
             break;
         }
     }
-
-    if (error)
-        return false;
 
     if (stop)
     {
         ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
         ui->actionDebug->setEnabled(true);
         ui->actionStart_Pause->setEnabled(true);
+        ui->statusBar->showMessage(tr("Done in %1 steps").arg(step), 3000);
         return false;
     }
 
@@ -509,15 +522,33 @@ void MainWindow::selectCell(int cell)
         ui->tapeTable->selectColumn(cell);
 }
 
-bool MainWindow::checkTape()
+bool MainWindow::checkCodeAndTape()
 {
     while (runTimeSelectedCharacter >= runTimeTape.size() && runTimeTape.size() < maxTapeSize)
         runTimeTape.push_back(QChar());
 
-    if(runTimeSelectedCharacter < 0 || runTimeSelectedCharacter >= runTimeTape.size())
+    if (step == 0 && runTimeSelectedCharacter < 0)
     {
-        launched = false;
+        ui->statusBar->showMessage(tr("Cannot find initial cell"), 10000);
+        return false;
+    }
+
+    if((step > 0 && runTimeSelectedCharacter < 0) ||
+            runTimeSelectedCharacter >= runTimeTape.size())
+    {
         ui->statusBar->showMessage(tr("Out of infinity tape"), 10000);
+        return false;
+    }
+
+    if (currentState.isEmpty())
+    {
+        ui->statusBar->showMessage(tr("Cannot find initial state"), 10000);
+        return false;
+    }
+
+    if (!states.keys().contains(currentState))
+    {
+        ui->statusBar->showMessage(tr("Cannot find state '%1'").arg(currentState), 10000);
         return false;
     }
 
@@ -552,9 +583,6 @@ void MainWindow::setRowColor(const QColor & color, const int currentRow, bool si
 
 void MainWindow::setCellColor(const QColor & color, const int currentColumn)
 {
-    if (initialCharacter < 0)
-        return;
-
     for (int column = 0; column < ui->tapeTable->columnCount(); column++)
         if (ui->tapeTable->item(0, column)->backgroundColor() == color)
         {
