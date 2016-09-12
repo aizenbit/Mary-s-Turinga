@@ -506,6 +506,10 @@ bool MainWindow::checkTape()
 
 void MainWindow::on_rulesTable_customContextMenuRequested(const QPoint &pos)
 {
+    if (ui->rulesTable->itemAt(pos)->backgroundColor() == red)
+        ui->actionFinal->setChecked(true);
+    else
+        ui->actionFinal->setChecked(false);
     rulesContextMenu->exec(ui->rulesTable->mapToGlobal(pos));
 }
 
@@ -547,10 +551,14 @@ void MainWindow::on_actionInitial_triggered()
     setRowColor(green, currentRow);
 }
 
-void MainWindow::on_actionFinal_triggered()
+void MainWindow::on_actionFinal_triggered(bool checked)
 {
+
     int currentRow = ui->rulesTable->rowAt(ui->rulesTable->mapFromGlobal(rulesContextMenu->pos()).y());
-    setRowColor(red, currentRow, false);
+    if (checked)
+        setRowColor(red, currentRow, false);
+    else
+        setRowColor(Qt::white, currentRow, false);
 }
 
 void MainWindow::on_actionInitial_Celll_triggered()

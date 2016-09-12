@@ -238,6 +238,9 @@
    </property>
   </action>
   <action name="actionFinal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Final</string>
    </property>

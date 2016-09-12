@@ -32,7 +32,7 @@ private slots:
     void on_rulesTable_customContextMenuRequested(const QPoint &pos);
     void on_tapeTable_customContextMenuRequested(const QPoint &pos);
     void on_actionInitial_triggered();
-    void on_actionFinal_triggered();
+    void on_actionFinal_triggered(bool checked);
     void on_actionInitial_Celll_triggered();
 
     void loadRulesToTable(QVector<Rule> rules);
