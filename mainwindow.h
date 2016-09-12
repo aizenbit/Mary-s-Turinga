@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets/QMainWindow>
-#include <QDebug>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTableWidgetItem>

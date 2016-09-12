@@ -27,3 +27,5 @@ RESOURCES += \
     resources.qrc
 
 RC_ICONS = resources\favicon.ico
+
+TRANSLATIONS += Mary-s-Turinga-ru_RU.ts

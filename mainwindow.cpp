@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->toolBar->addWidget(delaySpinBox);
     version = "1.0";
     step = 0;
+
+    ui->rulesTable->resizeColumnsToContents();
 }
 
 MainWindow::~MainWindow()
