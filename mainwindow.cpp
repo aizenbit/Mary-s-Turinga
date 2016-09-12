@@ -17,9 +17,15 @@ MainWindow::MainWindow(QWidget *parent) :
     tapeContextMenu->addActions(QList<QAction *>() << ui->actionInitial_Celll);
     addRow();
     addCell();
-    delayTime = 100;
     maxTapeSize = 999;
     initialCharacter = -1;
+
+    delaySpinBox = new QSpinBox();
+    delaySpinBox->setSuffix(tr(" ms"));
+    delaySpinBox->setRange(0, 10000);
+    delaySpinBox->setSingleStep(100);
+    delaySpinBox->setPrefix(tr("Delay: "));
+    ui->toolBar->addWidget(delaySpinBox);
 }
 
 MainWindow::~MainWindow()
@@ -27,6 +33,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete rulesContextMenu;
     delete tapeContextMenu;
+    delete delaySpinBox;
 }
 
 void MainWindow::on_actionHelp_triggered()
@@ -243,7 +250,6 @@ void MainWindow::loadCharactersToTape(QVector<QChar> tape)
 
 void MainWindow::on_rulesTable_itemChanged(QTableWidgetItem *item)
 {
-    bool isInteger = false;
     QString text = item->text();
     Rule rule;
 
@@ -408,7 +414,7 @@ void MainWindow::run()
             break;
         }
 
-        delay(delayTime);
+        delay(delaySpinBox->value());
     }
 }
 

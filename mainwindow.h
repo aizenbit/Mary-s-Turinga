@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QTableWidgetItem>
 #include <QTime>
+#include <QSpinBox>
 #include "rule.h"
 
 namespace Ui {
@@ -65,9 +66,9 @@ private:
     QString currentState;
     QMenu *rulesContextMenu, *tapeContextMenu;
     bool launched, paused, stopped;
-    int delayTime, maxTapeSize;
+    int maxTapeSize;
     QColor green, red;
-
+    QSpinBox *delaySpinBox;
 };
 
 #endif // MAINWINDOW_H

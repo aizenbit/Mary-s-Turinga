@@ -101,7 +101,6 @@ Rule Rule::fromString(const QString & in)
     if (isInitial)
         textRule.remove(textRule.size() - 1, 1);
 
-    int arrow = 0;
     QStringList elements = textRule.split(QRegularExpression("(;|->)"));
 
     QChar currentSymbol, nextSymbol, direction;
