@@ -319,6 +319,8 @@ void MainWindow::pause(bool pause)
 
 void MainWindow::on_actionStart_Pause_triggered()
 {
+    ui->actionDebug->setEnabled(false);
+
     if (!launched && !paused)
     {
         stopped = false;
@@ -368,14 +370,26 @@ void MainWindow::prepareToStart()
 
 void MainWindow::on_actionDebug_triggered()
 {
+    ui->actionStart_Pause->setEnabled(false);
+
     if (!launched)
     {
         prepareToStart();
         launched = true;
+        stopped = false;
     }
 
-    singleStep();
+    bool stop = !singleStep();
     paused = true;
+
+    if (stop)
+    {
+        ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
+        ui->actionDebug->setEnabled(false);
+        ui->actionStart_Pause->setEnabled(true);
+        paused = false;
+        launched = false;
+    }
 }
 
 void MainWindow::on_actionStop_triggered()
@@ -383,6 +397,9 @@ void MainWindow::on_actionStop_triggered()
     launched = false;
     paused = false;
     stopped = true;
+    ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
+    ui->actionDebug->setEnabled(true);
+    ui->actionStart_Pause->setEnabled(true);
 
     qApp->processEvents();
     loadRulesToTable(rules);
@@ -404,10 +421,14 @@ void MainWindow::run()
 
 bool MainWindow::singleStep()
 {
-    bool stop = true;
+    bool stop = true, error = false;
     for(Rule &rule : states.values(currentState))
     {
-        checkTape();
+        error = !checkTape();
+
+        if (error)
+            break;
+
         selectRow(rule);
 
         if (runTimeTape[runTimeSelectedCharacter] == rule.getCurrentSymbol() ||
@@ -430,8 +451,16 @@ bool MainWindow::singleStep()
         }
     }
 
-    if (stop)
+    if (error)
         return false;
+
+    if (stop)
+    {
+        ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
+        ui->actionDebug->setEnabled(true);
+        ui->actionStart_Pause->setEnabled(true);
+        return false;
+    }
 
     loadCharactersToTape(runTimeTape);
     selectCell(runTimeSelectedCharacter);
@@ -455,17 +484,19 @@ void MainWindow::selectCell(int cell)
         ui->tapeTable->selectColumn(cell);
 }
 
-void MainWindow::checkTape()
+bool MainWindow::checkTape()
 {
     while (runTimeSelectedCharacter >= runTimeTape.size() && runTimeTape.size() < maxTapeSize)
         runTimeTape.push_back(QChar());
 
-    if(runTimeSelectedCharacter < 0)
+    if(runTimeSelectedCharacter < 0 || runTimeSelectedCharacter >= runTimeTape.size())
     {
         launched = false;
         //TODO: error handling
-        return;
+        return false;
     }
+
+    return true;
 }
 
 void MainWindow::on_rulesTable_customContextMenuRequested(const QPoint &pos)

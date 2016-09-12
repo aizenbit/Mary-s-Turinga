@@ -49,7 +49,7 @@ private slots:
     bool singleStep();
     void selectRow(Rule rule);
     void selectCell(int cell);
-    void checkTape();
+    bool checkTape();
 
     void on_actionDebug_triggered();
 
