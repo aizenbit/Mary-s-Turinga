@@ -33,9 +33,10 @@ void MainWindow::on_actionHelp_triggered()
 {
     QMessageBox aboutBox;
     aboutBox.setWindowTitle(tr("About") + " Mary's Turinga");
+    aboutBox.setIconPixmap(QPixmap("://resources/aboutIcon.png"));
     aboutBox.setInformativeText("<p>" +
                                 tr("Mary's Turinga (Russian: Машина Тьюринга) is just another emulator of Turing machine.") + "<br>" +
-                                tr("Distributed under The MIT License. See License and Credist page.") +
+                                tr("Distributed under <a href=https://github.com/aizenbit/Mary-s-Turinga/blob/master/LICENSE>The MIT License</a>.") +
                                 "<br><br>" + tr("Repository:") + "<br>"
                                 "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga</a><br><br>"
                                 "Icons designed by <a href=http://www.flaticon.com/authors/freepik>Freepik</a> and "

@@ -8,5 +8,6 @@
         <file>resources/save-button.png</file>
         <file>resources/stop-button.png</file>
         <file>resources/favicon.ico</file>
+        <file>resources/aboutIcon.png</file>
     </qresource>
 </RCC>
