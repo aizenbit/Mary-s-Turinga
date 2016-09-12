@@ -324,9 +324,9 @@ void MainWindow::on_actionStart_Pause_triggered()
         stopped = false;
         launched = true;
         prepareToStart();
-        run();
-        launched = false;
         pause(false);
+        run();
+        return;
     }
 
     if (paused)
@@ -334,11 +334,10 @@ void MainWindow::on_actionStart_Pause_triggered()
         pause(false);
         launched = true;
         run();
-        launched = false;
+        return;
     }
-    else
-        pause();
 
+    pause();
 }
 
 void MainWindow::prepareToStart()
@@ -395,7 +394,9 @@ void MainWindow::run()
     while (launched)
     {
         if (!singleStep())
+        {
             break;
+        }
 
         delay(delayTime);
     }
@@ -491,6 +492,9 @@ void MainWindow::setRowColor(const QColor & color, const int currentRow, bool si
 
 void MainWindow::setCellColor(const QColor & color, const int currentColumn)
 {
+    if (initialCharacter < 0)
+        return;
+
     for (int column = 0; column < ui->tapeTable->columnCount(); column++)
         if (ui->tapeTable->item(0, column)->backgroundColor() == color)
         {
