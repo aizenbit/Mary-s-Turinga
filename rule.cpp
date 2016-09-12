@@ -69,7 +69,7 @@ Rule::Rule(QString currentState, QChar currentSymbol,
 QString Rule::toString() const
 {
 
-    QString string = QString("q%1;%2->q%3;%4;%5")
+    QString string = QString("%1;%2->%3;%4;%5")
             .arg(currentState)
             .arg(currentSymbol.isNull() ? ' ' : currentSymbol)
             .arg(nextState)

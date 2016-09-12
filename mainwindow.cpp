@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     delaySpinBox->setSingleStep(100);
     delaySpinBox->setPrefix(tr("Delay: "));
     ui->toolBar->addWidget(delaySpinBox);
+    version = "1.0";
 }
 
 MainWindow::~MainWindow()
@@ -41,14 +42,15 @@ void MainWindow::on_actionHelp_triggered()
     QMessageBox aboutBox;
     aboutBox.setWindowTitle(tr("About") + " Mary's Turinga");
     aboutBox.setIconPixmap(QPixmap("://resources/aboutIcon.png"));
-    aboutBox.setInformativeText("<p>" +
-                                tr("Mary's Turinga (Russian: Машина Тьюринга) is just another emulator of Turing machine.") + "<br>" +
-                                tr("Distributed under <a href=https://github.com/aizenbit/Mary-s-Turinga/blob/master/LICENSE>The MIT License</a>.") +
+    aboutBox.setText(tr("Mary's Turinga v%1 (Russian: Машина Тьюринга) is just another emulator of Turing machine.").arg(version));
+    aboutBox.setInformativeText("<p>"
+                                + tr("Distributed under "
+                                   "<a href=https://github.com/aizenbit/Mary-s-Turinga/blob/master/LICENSE>The MIT License</a>.") +
                                 "<br><br>" + tr("Repository:") + "<br>"
-                                "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga</a><br><br>"
-                                "Icons designed by <a href=http://www.flaticon.com/authors/freepik>Freepik</a> and "
+                                "<a href=https://github.com/aizenbit/Mary-s-Turinga>https://github.com/aizenbit/Mary-s-Turinga</a><br><br>" +
+                                tr("Icons designed by <a href=http://www.flaticon.com/authors/freepik>Freepik</a> and "
                                 "<a href=http://www.flaticon.com/authors/hanan>Hanan</a> from "
-                                "<a href=http://www.flaticon.com>FlatIcon</a>.<br></p>");
+                                "<a href=http://www.flaticon.com>FlatIcon</a>.<br></p>"));
     aboutBox.exec();
 }
 
@@ -71,6 +73,13 @@ void MainWindow::on_actionSave_triggered()
         return;
 
     QTextStream out(&file);
+    out << tr("# File created by Mary's Turinga v%1 on %2\n"
+              "# Syntax: Current_State;Current_Symbol->Next_State;Next_Symbol;Direction[i][f]\n"
+              "# Whitespace Symbols like ' ' (space) are the same as blank or null symbols\n"
+              "# Direction can be R, L or N - Right, Left or None.\n"
+              "# 'i' means that Current_State is initial state, 'f' means final state.\n"
+              "# Symbol '#' is used to mark commentary.\n\n").arg(version).arg(QDateTime::currentDateTime().toString("ddd dd MMM yyyy hh:mm:ss"));
+
     for (const Rule & rule : rules)
          out << rule.toString() << '\n';
 
@@ -87,6 +96,7 @@ void MainWindow::on_actionSave_triggered()
     }
 
     file.close();
+    ui->statusBar->showMessage(tr("Successfully saved"), 3000);
 }
 
 void MainWindow::on_actionLoad_triggered()
@@ -102,7 +112,10 @@ void MainWindow::on_actionLoad_triggered()
     QFile file(fileName);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        ui->statusBar->showMessage(tr("Can't open file"), 3000);
         return;
+    }
 
     rules.clear();
 
@@ -147,6 +160,7 @@ void MainWindow::on_actionLoad_triggered()
     }
     loadRulesToTable(rules);
     loadCharactersToTape(tape);
+    ui->statusBar->showMessage(tr("Successfully loaded"), 3000);
 }
 
 void MainWindow::loadRulesToTable(QVector<Rule> rules)
@@ -332,12 +346,14 @@ void MainWindow::on_actionStart_Pause_triggered()
         launched = true;
         prepareToStart();
         pause(false);
+        ui->statusBar->showMessage(tr("Run..."), 3000);
         run();
         return;
     }
 
     if (paused)
     {
+        ui->statusBar->showMessage(tr("Run..."), 3000);
         pause(false);
         launched = true;
         run();
@@ -345,6 +361,7 @@ void MainWindow::on_actionStart_Pause_triggered()
     }
 
     pause();
+    ui->statusBar->showMessage(tr("Pause"), 3000);
 }
 
 void MainWindow::prepareToStart()
@@ -379,6 +396,7 @@ void MainWindow::on_actionDebug_triggered()
 
     if (!launched)
     {
+        ui->statusBar->showMessage(tr("Debug started"), 3000);
         prepareToStart();
         launched = true;
         stopped = false;
@@ -391,6 +409,7 @@ void MainWindow::on_actionDebug_triggered()
     {
         ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
         ui->actionDebug->setEnabled(false);
+        ui->statusBar->showMessage(tr("Debug finished"), 3000);
         ui->actionStart_Pause->setEnabled(true);
         paused = false;
         launched = false;
@@ -399,6 +418,7 @@ void MainWindow::on_actionDebug_triggered()
 
 void MainWindow::on_actionStop_triggered()
 {
+    ui->statusBar->showMessage(tr("Stopped"), 3000);
     launched = false;
     paused = false;
     stopped = true;
@@ -497,7 +517,7 @@ bool MainWindow::checkTape()
     if(runTimeSelectedCharacter < 0 || runTimeSelectedCharacter >= runTimeTape.size())
     {
         launched = false;
-        //TODO: error handling
+        ui->statusBar->showMessage(tr("Out of infinity tape"), 10000);
         return false;
     }
 
