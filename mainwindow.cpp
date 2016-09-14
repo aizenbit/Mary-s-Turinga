@@ -450,7 +450,6 @@ void MainWindow::on_actionStop_triggered()
     ui->actionStart_Pause->setEnabled(true);
 
     qApp->processEvents();
-    loadRulesToTable(rules);
     loadCharactersToTape(tape);
 }
 
