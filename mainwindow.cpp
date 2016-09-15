@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     delaySpinBox->setSingleStep(100);
     delaySpinBox->setPrefix(tr("Delay: "));
     ui->toolBar->addWidget(delaySpinBox);
-    version = "1.0";
+    version = "1.0.1";
     step = 0;
 
     ui->rulesTable->resizeColumnsToContents();
@@ -432,7 +432,6 @@ void MainWindow::on_actionDebug_triggered()
     {
         ui->actionStart_Pause->setIcon(QIcon(":/resources/play-button.png"));
         ui->actionDebug->setEnabled(false);
-        ui->statusBar->showMessage(tr("Debug finished in %1 steps").arg(step), 3000);
         ui->actionStart_Pause->setEnabled(true);
         paused = false;
         launched = false;
