@@ -123,7 +123,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionLoad_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(0, tr("Save"), "",
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Open"), "",
                                                           tr("tm or txt") +
                                                           "(*.tm, *.txt);;" +
                                                           tr("All Files") +
